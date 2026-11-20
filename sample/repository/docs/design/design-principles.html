@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PeoplePath employee onboarding design principles, visual tokens, and control examples.">
+  <title>PeoplePath · Design principles</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #272b3b;
+      --muted: #717487;
+      --subtle: #9294a2;
+      --line: #e7e7ee;
+      --canvas: #f8f8fb;
+      --surface: #ffffff;
+      --purple: #7162c8;
+      --purple-dark: #5143a5;
+      --purple-soft: #f0effb;
+      --green: #24886d;
+      --green-soft: #e5f4ef;
+      --amber: #a97723;
+      --amber-soft: #fff5df;
+      --red: #b94d55;
+      --red-soft: #fff0f0;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow: 0 10px 30px #25243b0b;
+      --font-body: "DM Sans", "Segoe UI", Arial, sans-serif;
+      --font-display: "Manrope", "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--canvas); font: 16px/1.55 var(--font-body); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: var(--purple-dark); }
+    :focus-visible { outline: 3px solid #9a8feb; outline-offset: 3px; }
+
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+    .topbar-inner { max-width: 1160px; margin: auto; padding: 19px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 10px; font: 800 18px var(--font-display); letter-spacing: -.5px; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px 10px 10px 3px; color: white; background: var(--purple); }
+    .top-link { font-size: 14px; text-decoration: none; color: var(--muted); }
+    main { max-width: 1160px; margin: auto; padding: 44px 28px 70px; }
+    .hero { margin-bottom: 34px; }
+    .eyebrow { color: var(--purple-dark); font-weight: 700; font-size: 12px; letter-spacing: 1.3px; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: var(--font-display); }
+    h1 { margin: 9px 0 10px; font-size: clamp(32px, 5vw, 46px); line-height: 1.12; letter-spacing: -1.8px; }
+    .hero p { max-width: 720px; margin: 0; color: var(--muted); font-size: 18px; }
+    .section { margin-top: 38px; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 16px; }
+    .section-heading h2 { margin: 0; font-size: 23px; letter-spacing: -.5px; }
+    .section-heading p { max-width: 550px; margin: 0; color: var(--muted); font-size: 14px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow); }
+
+    .principles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+    .principle { padding: 18px; }
+    .principle-icon { width: 36px; height: 36px; display: grid; place-items: center; margin-bottom: 12px; border-radius: 11px; color: var(--purple-dark); background: var(--purple-soft); font-size: 18px; }
+    .principle h3 { margin: 0 0 6px; font-size: 16px; }
+    .principle p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .token-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .token-card { padding: 20px; }
+    .token-card h3 { margin: 0 0 14px; font-size: 16px; }
+    .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .swatch { min-width: 0; }
+    .swatch-color { height: 54px; border: 1px solid #0000000b; border-radius: 9px; }
+    .swatch strong, .swatch code { display: block; font-size: 12px; }
+    .swatch strong { margin-top: 7px; }
+    .swatch code { color: var(--muted); }
+    .type-sample { display: grid; grid-template-columns: 100px 1fr; gap: 9px 14px; align-items: baseline; }
+    .type-sample span { color: var(--muted); font-size: 12px; }
+    .type-sample strong { font-family: var(--font-display); }
+    .type-display { font-size: 27px; line-height: 1.2; }
+    .type-title { font-size: 20px; }
+    .type-body { font: 16px/1.55 var(--font-body); }
+    .type-small { font: 14px/1.5 var(--font-body); color: var(--muted); }
+    .space-list { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+    .space-item { display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+    .space-block { height: 24px; background: #dcd7f4; border-radius: 4px; }
+
+    .controls-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .control-card { padding: 21px; min-width: 0; }
+    .control-card h3 { margin: 0 0 4px; font-size: 17px; }
+    .control-card > p { margin: 0 0 17px; color: var(--muted); font-size: 14px; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+    .button { min-height: 42px; padding: 0 15px; display: inline-flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid transparent; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; transition: background .15s, border-color .15s, transform .15s; }
+    .button:active { transform: translateY(1px); }
+    .button-primary { color: #fff; background: var(--purple); box-shadow: 0 3px 8px #7162c826; }
+    .button-primary:hover { background: var(--purple-dark); }
+    .button-secondary { color: var(--ink); background: #fff; border-color: var(--line); }
+    .button-secondary:hover { background: #f7f7fa; border-color: #d4d3df; }
+    .button-quiet { color: var(--purple-dark); background: transparent; }
+    .button-quiet:hover { background: var(--purple-soft); }
+    .button-danger { color: var(--red); background: var(--red-soft); }
+    .button-danger:hover { background: #ffe3e4; }
+    .button:disabled { cursor: not-allowed; color: #9294a2; background: #f0f0f3; border-color: #e7e7eb; box-shadow: none; }
+
+    .field { display: grid; gap: 6px; margin-bottom: 13px; }
+    .field label { font-weight: 700; font-size: 14px; }
+    .field input { width: 100%; height: 44px; padding: 0 12px; border: 1px solid #dcdde5; border-radius: var(--radius-sm); color: var(--ink); background: white; font-size: 15px; }
+    .field input::placeholder { color: #898c9b; }
+    .field input:focus { border-color: var(--purple); outline: 3px solid #7162c826; }
+    .field-hint { color: var(--muted); font-size: 13px; }
+    .field-error { border-color: var(--red) !important; }
+    .error-message { color: var(--red); font-size: 13px; }
+    .search-field { position: relative; }
+    .search-field span { position: absolute; left: 12px; top: 10px; color: var(--muted); }
+    .search-field input { padding-left: 39px; }
+
+    .tab-list { display: flex; flex-wrap: wrap; gap: 5px; padding-bottom: 2px; border-bottom: 1px solid var(--line); }
+    .tab { min-height: 39px; padding: 0 12px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; }
+    .tab:hover { color: var(--purple-dark); }
+    .tab[aria-selected="true"] { border-bottom-color: var(--purple); color: var(--purple-dark); }
+    .tab-count { margin-left: 5px; padding: 2px 7px; border-radius: 10px; background: #f0eff6; color: #66627f; font-size: 12px; }
+    .demo-status { min-height: 24px; margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+
+    .check-list { display: grid; gap: 8px; }
+    .check-row { display: flex; align-items: flex-start; gap: 11px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+    .check-row input { width: 19px; height: 19px; margin: 2px 0 0; accent-color: var(--green); }
+    .check-copy { flex: 1; }
+    .check-copy strong { display: block; font-size: 15px; }
+    .check-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .check-row:has(input:checked) .check-copy strong { color: var(--muted); text-decoration: line-through; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 99px; font-size: 12px; line-height: 1.2; font-weight: 700; white-space: nowrap; }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .badge-success { color: #267657; background: var(--green-soft); }
+    .badge-pending { color: #906317; background: var(--amber-soft); }
+    .badge-neutral { color: #656a7c; background: #f0f1f5; }
+    .badge-attention { color: #a84f56; background: var(--red-soft); }
+
+    .progress-demo { display: grid; gap: 9px; }
+    .progress-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; }
+    .progress-head strong { font-size: 15px; }
+    .progress-head span { color: var(--purple-dark); font-weight: 700; }
+    .progress-track { height: 9px; overflow: hidden; border-radius: 99px; background: #eeedf5; }
+    .progress-track span { display: block; width: 64%; height: 100%; border-radius: inherit; background: var(--purple); }
+    .progress-caption { color: var(--muted); font-size: 13px; }
+
+    .stat-example { display: flex; align-items: center; gap: 13px; padding: 15px; border: 1px solid var(--line); border-radius: 11px; }
+    .stat-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; color: var(--purple-dark); background: var(--purple-soft); font-size: 19px; }
+    .stat-example span, .stat-example strong { display: block; }
+    .stat-example span { color: var(--muted); font-size: 13px; }
+    .stat-example strong { margin-top: 2px; font: 700 24px var(--font-display); }
+    .avatar-row { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; font-size: 13px; font-weight: 700; }
+    .avatar-lilac { color: #805a98; background: #f0e3f8; }
+    .avatar-peach { color: #aa6746; background: #ffe6d7; }
+    .avatar-mint { color: #35745c; background: #d9eee5; }
+    .avatar-blue { color: #4e6da1; background: #e0ebfc; }
+    .avatar-note { color: var(--muted); font-size: 13px; }
+    .guidance { padding: 20px 22px; border-left: 4px solid var(--purple); background: #f0effb; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .guidance h3 { margin: 0 0 7px; font-size: 17px; }
+    .guidance p { margin: 0; color: #55576a; font-size: 14px; }
+    footer { padding-top: 24px; margin-top: 42px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 850px) {
+      .principles { grid-template-columns: repeat(2, 1fr); }
+      .token-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      body { font-size: 15px; }
+      .topbar-inner { padding: 15px 18px; }
+      main { padding: 30px 18px 48px; }
+      .top-link { font-size: 12px; }
+      .hero p { font-size: 16px; }
+      .section-heading { display: block; }
+      .section-heading p { margin-top: 7px; }
+      .principles, .controls-grid { grid-template-columns: 1fr; }
+      .swatches { grid-template-columns: repeat(2, 1fr); }
+      .control-card, .token-card { padding: 17px; }
+      .type-sample { grid-template-columns: 82px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark">p</span> PeoplePath <span style="color:#9294a2;font:500 13px var(--font-body)">Design guide</span></div>
+      <a class="top-link" href="../../README.md">Back to sample app documentation →</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">PeoplePath · UI foundations</div>
+      <h1>Thoughtful by design.</h1>
+      <p>A small set of design principles and reusable controls for a welcoming, clear, and easy-to-use employee onboarding experience.</p>
+    </section>
+
+    <section class="section" aria-labelledby="principles-heading">
+      <div class="section-heading"><div><h2 id="principles-heading">Design principles</h2></div><p>Use these principles when adding screens or changing existing onboarding flows.</p></div>
+      <div class="principles">
+        <article class="card principle"><div class="principle-icon">✳</div><h3>Welcome people warmly</h3><p>Use human language and friendly details. Keep the interface calm and respectful.</p></article>
+        <article class="card principle"><div class="principle-icon">↗</div><h3>Make the next step clear</h3><p>Give each task a direct name, a useful detail, and a clear status or due date.</p></article>
+        <article class="card principle"><div class="principle-icon">◉</div><h3>Show progress at a glance</h3><p>Use consistent progress bars, status badges, and summaries to reduce guesswork.</p></article>
+        <article class="card principle"><div class="principle-icon">Aa</div><h3>Keep it readable</h3><p>Use generous text sizes, strong contrast, visible focus, and comfortable spacing.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tokens-heading">
+      <div class="section-heading"><div><h2 id="tokens-heading">Visual foundations</h2></div><p>Shared colors, typography, and spacing keep new controls consistent with the app.</p></div>
+      <div class="token-grid">
+        <article class="card token-card">
+          <h3>Color palette</h3>
+          <div class="swatches">
+            <div class="swatch"><div class="swatch-color" style="background:#272b3b"></div><strong>Ink</strong><code>#272B3B</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#7162c8"></div><strong>PeoplePath purple</strong><code>#7162C8</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#5143a5"></div><strong>Deep purple</strong><code>#5143A5</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#f0effb"></div><strong>Soft purple</strong><code>#F0EFFB</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#24886d"></div><strong>Complete</strong><code>#24886D</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#fff5df"></div><strong>Pending</strong><code>#FFF5DF</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#f8f8fb"></div><strong>Canvas</strong><code>#F8F8FB</code></div>
+            <div class="swatch"><div class="swatch-color" style="background:#e7e7ee"></div><strong>Divider</strong><code>#E7E7EE</code></div>
+          </div>
+        </article>
+        <article class="card token-card">
+          <h3>Type and spacing</h3>
+          <div class="type-sample">
+            <span>Page title · 32</span><strong class="type-display">Welcome aboard</strong>
+            <span>Section · 20</span><strong class="type-title">Onboarding journey</strong>
+            <span>Body · 16</span><strong class="type-body">Every detail helps a new teammate feel at home.</strong>
+            <span>Supporting · 14</span><strong class="type-small">A clear hint or useful bit of context.</strong>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:19px 0">
+          <div class="space-list" aria-label="Spacing scale">
+            <div class="space-item"><div class="space-block" style="width:4px"></div>4</div>
+            <div class="space-item"><div class="space-block" style="width:8px"></div>8</div>
+            <div class="space-item"><div class="space-block" style="width:12px"></div>12</div>
+            <div class="space-item"><div class="space-block" style="width:16px"></div>16</div>
+            <div class="space-item"><div class="space-block" style="width:24px"></div>24</div>
+            <div class="space-item"><div class="space-block" style="width:32px"></div>32</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="controls-heading">
+      <div class="section-heading"><div><h2 id="controls-heading">Sample controls</h2></div><p>Examples of the controls used in the onboarding app. Tabs and checkboxes below are interactive.</p></div>
+      <div class="controls-grid">
+        <article class="card control-card">
+          <h3>Buttons</h3><p>Use one primary action per area. Secondary actions should stay visually quieter.</p>
+          <div class="button-row"><button class="button button-primary" type="button">＋ Add a new hire</button><button class="button button-secondary" type="button">Cancel</button><button class="button button-quiet" type="button">View all →</button><button class="button button-danger" type="button">Remove</button><button class="button button-secondary" type="button" disabled>Unavailable</button></div>
+        </article>
+        <article class="card control-card">
+          <h3>Text fields</h3><p>Keep labels visible, hint text helpful, and errors close to the field.</p>
+          <div class="field"><label for="name">Full name</label><input id="name" type="text" placeholder="e.g. Taylor Reed"><span class="field-hint">Use the name your new teammate prefers.</span></div>
+          <div class="field"><label for="email">Work email</label><div class="search-field"><span aria-hidden="true">✉</span><input id="email" type="email" placeholder="name@company.com"></div></div>
+        </article>
+        <article class="card control-card">
+          <h3>Tabs and filters</h3><p>Make the selected view obvious and keep category names short.</p>
+          <div class="tab-list" role="tablist" aria-label="Task filter">
+            <button class="tab" type="button" role="tab" aria-selected="true">All tasks</button>
+            <button class="tab" type="button" role="tab" aria-selected="false">To do <span class="tab-count">3</span></button>
+            <button class="tab" type="button" role="tab" aria-selected="false">Completed</button>
+          </div>
+          <p class="demo-status" id="tab-status" aria-live="polite">Showing all onboarding tasks.</p>
+        </article>
+        <article class="card control-card">
+          <h3>Task checklist</h3><p>Use a large click target and clearly mark completed work.</p>
+          <div class="check-list">
+            <label class="check-row"><input type="checkbox" checked><span class="check-copy"><strong>Prepare laptop and accounts</strong><span>Core tools are ready for day one.</span></span></label>
+            <label class="check-row"><input type="checkbox"><span class="check-copy"><strong>Meet your onboarding buddy</strong><span>A relaxed introduction with the team.</span></span></label>
+          </div>
+        </article>
+        <article class="card control-card">
+          <h3>Status and progress</h3><p>Pair status color with a label so meaning is never color-only.</p>
+          <div class="button-row" style="margin-bottom:18px"><span class="badge badge-success">Complete</span><span class="badge badge-pending">In progress</span><span class="badge badge-neutral">Not started</span><span class="badge badge-attention">Needs attention</span></div>
+          <div class="progress-demo"><div class="progress-head"><strong>Onboarding progress</strong><span>3 of 5 steps</span></div><div class="progress-track" role="progressbar" aria-label="Onboarding progress" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span></span></div><div class="progress-caption">64% complete · next step due tomorrow</div></div>
+        </article>
+        <article class="card control-card">
+          <h3>Summary cards and avatars</h3><p>Use cards to group related information and initials as a clear fallback.</p>
+          <div class="stat-example"><div class="stat-icon" aria-hidden="true">♧</div><div><span>New team members</span><strong>3</strong></div></div>
+          <div class="avatar-row" style="margin-top:16px"><span class="avatar avatar-lilac">OR</span><span class="avatar avatar-peach">PB</span><span class="avatar avatar-mint">LS</span><span class="avatar avatar-blue">TR</span><span class="avatar-note">Olivia, Phoenix, Lana, and Taylor</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section guidance" aria-labelledby="accessibility-heading">
+      <h3 id="accessibility-heading">Accessibility and interaction rules</h3>
+      <p>Keep body text at a comfortable size, maintain strong text contrast, and make every action usable by keyboard. Preserve a visible focus ring, use a real label for each field, provide an accessible name for icon-only buttons, and pair color with plain-language status text. Prefer clear confirmation after a user changes onboarding data.</p>
+    </section>
+
+    <footer>PeoplePath design guide · Based on the sample employee onboarding app · Keep new UI consistent with these patterns.</footer>
+  </main>
+
+  <script>
+    const tabMessages = {
+      "All tasks": "Showing all onboarding tasks.",
+      "To do": "Showing tasks that still need attention.",
+      "Completed": "Showing completed onboarding tasks."
+    };
+    document.querySelectorAll('[role="tab"]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('[role="tab"]').forEach((item) => item.setAttribute('aria-selected', 'false'));
+        tab.setAttribute('aria-selected', 'true');
+        const label = tab.childNodes[0].textContent.trim();
+        document.getElementById('tab-status').textContent = tabMessages[label];
+      });
+    });
+  </script>
+</body>
+</html>

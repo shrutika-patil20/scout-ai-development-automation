@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Scout Automation History</title>
+  <style>
+    :root{font-family:Segoe UI,Arial,sans-serif;color:#18243a;background:#f4f6fa;font-synthesis:none;text-rendering:optimizeLegibility}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh}
+    header{background:#fff;border-bottom:1px solid #e2e7ef}
+    .header-inner,main{width:min(1040px,calc(100% - 40px));margin:0 auto}
+    .header-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{font-size:18px;font-weight:700;letter-spacing:-.3px}
+    .live{display:flex;align-items:center;gap:8px;color:#526176;font-size:13px}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:#15966a;box-shadow:0 0 0 3px #e0f4eb}
+    main{padding:36px 0 56px}
+    .intro{margin-bottom:24px}
+    h1{margin:0 0 8px;font-size:30px;letter-spacing:-.8px}
+    .intro p{margin:0;color:#647188;font-size:15px;line-height:1.6}
+    .toolbar{display:flex;align-items:end;justify-content:space-between;gap:16px;padding:18px;background:#fff;border:1px solid #e2e7ef;border-radius:12px}
+    label{display:grid;gap:7px;color:#536177;font-size:13px;font-weight:600}
+    select,button{height:40px;border:1px solid #d5dce7;border-radius:8px;background:#fff;color:#18243a;font:inherit}
+    select{width:min(280px,70vw);padding:0 11px}
+    button{padding:0 15px;font-weight:600;cursor:pointer}
+    button:hover{background:#f7f9fc}
+    select:focus,button:focus-visible{outline:3px solid #aac7ff;border-color:#3973d6}
+    #last-checked{color:#778398;font-size:12px;text-align:right}
+    #history{margin-top:16px}
+    .message{padding:20px;background:#fff;border:1px solid #e2e7ef;border-radius:12px;color:#5e6b80;font-size:14px;line-height:1.65}
+    .message.error{border-color:#f0c8c8;background:#fffafa;color:#9b3d3d}
+    .run{margin-top:14px;padding:21px;background:#fff;border:1px solid #e2e7ef;border-radius:12px;box-shadow:0 2px 8px #22324a08}
+    .run-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+    .run h2{margin:10px 0 5px;font-size:18px;line-height:1.4;letter-spacing:-.2px}
+    .run-time,.run-id{margin:0;color:#758197;font-size:12px;overflow-wrap:anywhere}
+    .badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#e6f5ed;color:#20734d;font-size:12px;font-weight:700;text-transform:capitalize}
+    .badge.blocked{background:#fff0ed;color:#a34237}
+    .badge.no-change{background:#f0edfb;color:#66539a}
+    .details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+    .detail{min-width:0;padding:14px;background:#f7f8fb;border-radius:9px}
+    .detail h3{margin:0 0 8px;color:#526077;font-size:12px;text-transform:uppercase;letter-spacing:.45px}
+    .detail p,.detail ul{margin:0;color:#344158;font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+    .detail ul{padding-left:18px}
+    .detail li+li{margin-top:3px}
+    code{font-family:Consolas,monospace;font-size:12px;overflow-wrap:anywhere}
+    @media(max-width:640px){.header-inner,main{width:min(100% - 28px,1040px)}.header-inner{min-height:62px}.brand{font-size:16px}.live{font-size:11px}main{padding-top:26px}h1{font-size:25px}.toolbar{align-items:stretch;flex-direction:column}.toolbar label{width:100%}select{width:100%}#last-checked{text-align:left}.run{padding:16px}.run-head{flex-direction:column;gap:7px}.details{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header><div class="header-inner"><div class="brand">Scout Automation History</div><div class="live"><span class="live-dot" aria-hidden="true"></span><span>Live updates every 10 seconds</span></div></div></header>
+  <main>
+    <section class="intro"><h1>Automation run history</h1><p>Review the runs Scout has saved, grouped by report date.</p></section>
+    <section class="toolbar" aria-label="Report controls">
+      <label for="report-date">Report date<select id="report-date" disabled><option value="">Finding reports...</option></select></label>
+      <div><button id="refresh" type="button">Refresh now</button><div id="last-checked" aria-live="polite"></div></div>
+    </section>
+    <section id="history" aria-live="polite"><div class="message">Loading report history...</div></section>
+  </main>
+  <script>
+    const dateSelect=document.querySelector('#report-date');
+    const historyView=document.querySelector('#history');
+    const checkedView=document.querySelector('#last-checked');
+    let knownDates=[];
+    let refreshing=false;
+    const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const asList=(items,render)=>Array.isArray(items)&&items.length?'<ul>'+items.map(item=>'<li>'+render(item)+'</li>').join('')+'</ul>':'<p>None recorded</p>';
+    function displayTime(value){if(!value)return 'Not recorded';const date=new Date(value);return Number.isNaN(date.getTime())?escapeHTML(value):escapeHTML(date.toLocaleString())}
+    function renderRun(run){
+      const design=run.designReview||{};
+      const coding=run.codingReview||{};
+      const findings=[...(Array.isArray(design.findings)?design.findings:[]),...(Array.isArray(coding.findings)?coding.findings:[])];
+      const sources=run.sources||[];
+      const requirements=run.requirements||[];
+      const tests=run.tests||[];
+      const files=run.changedFiles||[];
+      const result=String(run.result||'unknown');
+      const sourceText=item=>typeof item==='string'?escapeHTML(item):escapeHTML(item.filename||'Source')+' - '+escapeHTML(item.type||'type unknown')+' - '+escapeHTML(item.date||'date unknown');
+      const requirementText=item=>typeof item==='string'?escapeHTML(item):escapeHTML(item.id||'Requirement')+' - '+escapeHTML(item.status||'status unknown');
+      const testText=item=>typeof item==='string'?escapeHTML(item):escapeHTML(item.command||'Check')+' - '+escapeHTML(item.result||'result unknown');
+      return '<article class="run"><div class="run-head"><div><span class="badge '+escapeHTML(result)+'">'+escapeHTML(result.replace('-',' '))+'</span><h2>'+escapeHTML(run.summary||'Scout automation run')+'</h2><p class="run-time">Completed '+displayTime(run.completedAt)+'</p></div><p class="run-id">Run ID: '+escapeHTML(run.runId||'Not recorded')+'</p></div><div class="details"><section class="detail"><h3>Sources</h3>'+asList(sources,sourceText)+'</section><section class="detail"><h3>Requirements</h3>'+asList(requirements,requirementText)+'</section><section class="detail"><h3>Checks</h3>'+asList(tests,testText)+'</section><section class="detail"><h3>Review</h3><p>Design: '+escapeHTML(design.status||'Not recorded')+'<br>Code: '+escapeHTML(coding.status||'Not recorded')+'</p>'+asList(findings,escapeHTML)+'</section><section class="detail"><h3>Changed files</h3>'+asList(files,file=>'<code>'+escapeHTML(file)+'</code>')+'</section></div></article>';
+    }
+    function showMessage(message,error=false){historyView.innerHTML='<div class="message'+(error?' error':'')+'">'+escapeHTML(message)+'</div>'}
+    async function refreshHistory(){
+      if(refreshing)return;
+      refreshing=true;
+      try{
+        const datesResponse=await fetch('/api/run-reports',{cache:'no-store'});
+        const dateData=await datesResponse.json();
+        if(!datesResponse.ok)throw new Error(dateData.error||'Could not load report dates.');
+        checkedView.textContent='Last checked '+new Date().toLocaleTimeString();
+        const dates=Array.isArray(dateData.dates)?dateData.dates:[];
+        const previous=dateSelect.value;
+        const wasLatest=!previous||previous===knownDates[0];
+        knownDates=dates;
+        dateSelect.innerHTML=dates.length?dates.map(date=>'<option value="'+escapeHTML(date)+'">'+escapeHTML(date)+'</option>').join(''):'<option value="">No reports found</option>';
+        const selected=dates.includes(previous)&&!wasLatest?previous:(dates[0]||'');
+        dateSelect.value=selected;
+        dateSelect.disabled=!dates.length;
+        if(!selected){showMessage('No automation reports found yet. This dashboard reads JSON files from sample/repository/reports/YYYY/MM/YYYY-MM-DD.json. A date will appear after Scout saves its first report.');return}
+        const reportResponse=await fetch('/api/run-reports?date='+encodeURIComponent(selected),{cache:'no-store'});
+        const reportData=await reportResponse.json();
+        if(!reportResponse.ok)throw new Error(reportData.error||'Could not load the selected report.');
+        const runs=Array.isArray(reportData.runs)?reportData.runs:[];
+        if(!runs.length)showMessage('No runs are recorded for '+selected+'.');
+        else historyView.innerHTML=runs.map(renderRun).join('');
+        checkedView.textContent='Last updated '+new Date().toLocaleTimeString();
+      }catch(error){showMessage(error instanceof Error?error.message:'Unable to load automation history.',true)}
+      finally{refreshing=false}
+    }
+    dateSelect.addEventListener('change',refreshHistory);
+    document.querySelector('#refresh').addEventListener('click',refreshHistory);
+    refreshHistory();
+    window.setInterval(refreshHistory,10000);
+  </script>
+</body>
+</html>

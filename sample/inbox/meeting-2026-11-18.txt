@@ -1,0 +1,14 @@
+Synthetic meeting transcript
+Date: 2026-11-18
+Meeting: Onboarding automation report history
+Participants: Jamie Morgan (People team), Alex Kim (Engineering), Taylor Reed (Operations)
+
+[09:02] Jamie: It is hard to tell what changed after the onboarding workflow runs. We need to look up the results from a specific day.
+[09:04] Alex: We can save one JSON report per processing date. If several runs happen on the same day, keep them together instead of replacing the earlier report.
+[09:06] Taylor: The report should show which source files were handled, the requirement IDs, changed files, test results, and review findings. It should not copy the full email or transcript into the report.
+[09:08] Jamie: Please add a date-by-date history to the sample application's frontend so the People team can select a date and review that day's runs.
+
+REQ: Save each completed workflow run in JSON under repository/reports/YYYY/MM/YYYY-MM-DD.json, preserving multiple runs for the same date.
+REQ: Add a date-by-date report history to the sample application's frontend, with the selected day's source files, requirements, changes, test results, and review findings.
+REQ: Keep report dates separate from the source dates found in emails and meeting transcripts.
+ACTION: Add tests for report loading, date selection, and preserving earlier runs on the same date.

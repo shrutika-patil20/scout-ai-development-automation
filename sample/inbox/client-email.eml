@@ -1,0 +1,16 @@
+From: people-ops@example.invalid
+To: product-team@example.invalid
+Date: Thu, 19 Nov 2026 10:15:00 +0530
+Subject: Small wording update in onboarding checklist
+Message-ID: <onboarding-copy-20261119@example.invalid>
+Content-Type: text/plain; charset=UTF-8
+
+Hello team,
+
+Could we make the empty checklist message a little clearer when a filter has
+no matching tasks?
+
+REQUEST: Change "No tasks match this view." to "No onboarding tasks match your selection."
+
+Thanks,
+People Operations
