@@ -120,34 +120,55 @@ def report():
  lines += ['\nNote: deterministic extraction and static review are limited; Scout enrichment requires a real Scout session.']
  return '\n'.join(lines)+'\n'
 
-def run_report_dates():
+def _report_json_files():
  report_root=REPO/'reports'
- if report_root.is_symlink():return []
- reports=report_root.resolve();dates=[]
- if not reports.is_dir():return dates
- for year_dir in reports.iterdir():
-  if year_dir.is_symlink() or not year_dir.is_dir() or not re.fullmatch(r'\d{4}',year_dir.name):continue
-  for month_dir in year_dir.iterdir():
-   if month_dir.is_symlink() or not month_dir.is_dir() or not re.fullmatch(r'\d{2}',month_dir.name):continue
-   for report_file in month_dir.iterdir():
-    if report_file.is_symlink() or not report_file.is_file() or not re.fullmatch(r'\d{4}-\d{2}-\d{2}\.json',report_file.name):continue
-    date=report_file.stem
-    try:parsed=datetime.strptime(date,'%Y-%m-%d')
-    except ValueError:continue
-    if parsed.strftime('%Y')==year_dir.name and parsed.strftime('%m')==month_dir.name:dates.append(date)
- return sorted(set(dates),reverse=True)
+ if report_root.is_symlink() or not report_root.is_dir():return []
+ reports=report_root.resolve();pending=[reports];files=[]
+ while pending:
+  directory=pending.pop()
+  for item in directory.iterdir():
+   if item.is_symlink():continue
+   if item.is_dir():pending.append(item)
+   elif item.is_file() and item.suffix.lower()=='.json':
+    resolved=item.resolve()
+    if resolved.is_relative_to(reports):files.append(resolved)
+ return sorted(files)
+
+def _run_report_date(data):
+ if not isinstance(data,dict):return None
+ candidates=[data.get('date')]
+ runs=data.get('runs')
+ if isinstance(runs,list):candidates.extend(run.get('completedAt','')[:10] for run in runs if isinstance(run,dict) and isinstance(run.get('completedAt'),str))
+ for candidate in candidates:
+  if not isinstance(candidate,str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}',candidate):continue
+  try:datetime.strptime(candidate,'%Y-%m-%d')
+  except ValueError:continue
+  return candidate
+ return None
+
+def run_report_dates():
+ dates=set()
+ for report_file in _report_json_files():
+  try:data=json.loads(report_file.read_text(encoding='utf-8'))
+  except (OSError,json.JSONDecodeError,UnicodeDecodeError):continue
+  date=_run_report_date(data)
+  if date:dates.add(date)
+ return sorted(dates,reverse=True)
 
 def read_run_report(date):
  if not isinstance(date,str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}',date):raise ValueError('Date must use YYYY-MM-DD format')
  try:parsed=datetime.strptime(date,'%Y-%m-%d')
  except ValueError as e:raise ValueError('Invalid report date') from e
- report_root=REPO/'reports'
- if report_root.is_symlink():raise ValueError('Invalid report directory')
- reports=report_root.resolve();target=reports/parsed.strftime('%Y')/parsed.strftime('%m')/(date+'.json')
- try:resolved=target.resolve(strict=True)
- except FileNotFoundError as e:raise FileNotFoundError('No report is available for this date') from e
- if not resolved.is_relative_to(reports) or target.is_symlink() or not resolved.is_file():raise ValueError('Invalid report file location')
- try:data=json.loads(resolved.read_text(encoding='utf-8'))
- except (json.JSONDecodeError,UnicodeDecodeError) as e:raise ValueError('Report file contains invalid JSON') from e
- if not isinstance(data,dict) or not isinstance(data.get('runs'),list) or not all(isinstance(run,dict) for run in data['runs']):raise ValueError('Report file must contain a runs array')
- return {'date':date,'runs':data['runs']}
+ reports=(REPO/'reports').resolve()
+ if not reports.is_relative_to(REPO.resolve()):raise ValueError('Invalid report directory')
+ candidates=_report_json_files()
+ runs=[]
+ for candidate in candidates:
+  try:data=json.loads(candidate.read_text(encoding='utf-8'))
+  except (OSError,json.JSONDecodeError,UnicodeDecodeError):continue
+  if _run_report_date(data)!=date:continue
+  if not isinstance(data,dict) or not isinstance(data.get('runs'),list) or not all(isinstance(run,dict) for run in data['runs']):raise ValueError(f'Report file {candidate.name} must contain a runs array')
+  runs.extend(data['runs'])
+ if not runs:raise FileNotFoundError('No report is available for this date')
+ runs.sort(key=lambda run:str(run.get('completedAt','')),reverse=True)
+ return {'date':date,'runs':runs}

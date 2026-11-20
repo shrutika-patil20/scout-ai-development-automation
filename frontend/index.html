@@ -97,7 +97,7 @@
         const selected=dates.includes(previous)&&!wasLatest?previous:(dates[0]||'');
         dateSelect.value=selected;
         dateSelect.disabled=!dates.length;
-        if(!selected){showMessage('No automation reports found yet. This dashboard reads JSON files from sample/repository/reports/YYYY/MM/YYYY-MM-DD.json. A date will appear after Scout saves its first report.');return}
+        if(!selected){showMessage('No automation reports found yet. This dashboard reads every JSON file under sample/repository/reports and groups valid reports by date.');return}
         const reportResponse=await fetch('/api/run-reports?date='+encodeURIComponent(selected),{cache:'no-store'});
         const reportData=await reportResponse.json();
         if(!reportResponse.ok)throw new Error(reportData.error||'Could not load the selected report.');

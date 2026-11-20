@@ -234,11 +234,14 @@ Below action **4**, select **Add step** (or the plus button) to create action **
    test results from action 3, and the review findings from action 4. Do not
    guess or report checks as passing unless action 3 confirms they passed.
 
-   Create one JSON report for this workflow run. Use the UTC completion date
-   for the report's date and keep source dates in separate fields. Save reports
-   under repository/reports/YYYY/MM/YYYY-MM-DD.json. If that date's file
-   already exists, append this run to its "runs" array; never overwrite earlier
-   runs. Give each run a unique runId.
+   Create one JSON report file for this workflow run. Set the top-level
+   "date" to YYYY-MM-DD and "time" to HH:mm:ss.SSSZ, both from the UTC
+   completion timestamp. Include startedAt and completedAt as full ISO 8601 UTC
+   timestamps. Keep source dates in separate fields. Save each run under
+   repository/reports/YYYY-MM-DD_HH-mm-ss-SSSZ_<runId>.json. For example:
+   repository/reports/2026-11-20_10-21-48-156Z_run-abc123.json.
+   Include a "runs" array containing this run record. Never overwrite an
+   existing report; use a unique runId in the filename.
 
    Each run record must include:
    - runId, startedAt, completedAt, and result (completed, no-change, or blocked)
@@ -264,7 +267,7 @@ Below action **4**, select **Add step** (or the plus button) to create action **
 
 The five actions create dated Markdown summaries, update `Requirement.md`, update the sample app and report history, run tests and type checking, review the application, and save a dated JSON run report. The local Python inbox scanner remains a separate manual workflow.
 
-## Run the local dasboard
+## Run the local dashboard
 
 The local dashboard runs on port `8777`.
 
@@ -276,7 +279,7 @@ From the repository root, start the application:
 python -m backend.server
 ```
 
-Open [http://127.0.0.1:8777](http://127.0.0.1:8777). The dashboard reads `sample/repository/reports/YYYY/MM/YYYY-MM-DD.json`, groups runs by date, and refreshes every 10 seconds. If the server was already running, stop it with `Ctrl+C` and start it again to load the updated dashboard. No reports appear until Scout saves a JSON report. To stop the server, press `Ctrl+C` in the terminal.
+Open [http://127.0.0.1:8777](http://127.0.0.1:8777). The dashboard reads every `.json` file under `sample/repository/reports/`, groups valid runs by their report date, and refreshes every 10 seconds. If the server was already running, stop it with `Ctrl+C` and start it again to load the updated dashboard. No reports appear until Scout saves a JSON report. To stop the server, press `Ctrl+C` in the terminal.
 
 The separate Employee Onboarding sample app has its own [run instructions](sample/repository/README.md).
 
